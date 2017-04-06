@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Game of Life</string>
+    <string name="go_button">Go!</string>
+    <string name="start_button">Start</string>
+    <string name="stop_button">Stop</string>
+    <string name="input_text">Enter text here</string>
+    <string name="qr_code">Convert text to QR-code:</string>
+</resources>
