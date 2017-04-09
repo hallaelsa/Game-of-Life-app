@@ -35,7 +35,7 @@ public class GameOfLifeActivity extends AppCompatActivity {
         String msg = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
         qrCode = new QRCodeWriter();
         try {
-            qr = qrCode.encode(msg, BarcodeFormat.QR_CODE, 50, 50);
+            qr = qrCode.encode(msg, BarcodeFormat.QR_CODE, 1, 1);
         } catch (WriterException e) {
             e.printStackTrace();
         }
@@ -43,10 +43,23 @@ public class GameOfLifeActivity extends AppCompatActivity {
         gameView = (GameView)this.findViewById(R.id.game);
         board.setQRCode(qr);
         gameView.setBoard(board);
+
+        /*gameView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                if (left == 0 && top == 0 && right == 0 && bottom == 0)
+                    return;
+
+                int min = Math.min(right - left, bottom - top);
+                v.width
+            }
+        });*/
     }
 
     public void start(View view) {
-        // må lage ny timer siden vi avslutter den på stopp()
+        if (timer != null)
+            timer.cancel();
+
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask(){
             @Override
@@ -58,7 +71,10 @@ public class GameOfLifeActivity extends AppCompatActivity {
     }
 
     public void stop(View view) {
-        timer.cancel();
-    }
+        if (timer == null)
+            return;
 
+        timer.cancel();
+        timer = null;
+    }
 }
