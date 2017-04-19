@@ -6,38 +6,77 @@
     android:layout_height="match_parent"
     tools:context="com.example.miinael.gol.MainActivity">
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="143dp"
-        android:layout_marginTop="111dp"
-        android:onClick="go"
-        android:text="@string/go_button"
+    <GridLayout
+        android:layout_width="0dp"
+        android:layout_height="495dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:onClick="go" />
+        app:layout_constraintVertical_bias="0.0">
 
-    <EditText
-        android:id="@+id/inText"
-        android:layout_width="215dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="56dp"
-        android:ems="10"
-        android:hint="@string/input_text"
-        android:inputType="text"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <ImageButton
+            android:id="@+id/imageButton4"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_column="1"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_row="1"
+            android:background="@drawable/go"
+            android:onClick="go"
+            app:layout_constraintHorizontal_bias="0.882"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="213dp"
-        android:layout_height="39dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/qr_code"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <EditText
+            android:id="@+id/inText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_column="0"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_row="1"
+            android:ems="10"
+            android:hint="@string/input_text"
+            android:inputType="text"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/imageButton5"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_column="1"
+            android:layout_row="2"
+            android:background="@drawable/camera"
+            android:onClick="pictureIntent" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="213dp"
+            android:layout_height="25dp"
+            android:layout_column="0"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_row="0"
+            android:text="@string/qr_code"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="213dp"
+            android:layout_height="25dp"
+            android:layout_column="0"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_row="2"
+            android:text="Convert picture to pattern:" />
+    </GridLayout>
+
 
 </android.support.constraint.ConstraintLayout>

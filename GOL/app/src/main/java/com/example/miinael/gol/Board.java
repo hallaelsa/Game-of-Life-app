@@ -3,6 +3,7 @@ package com.example.miinael.gol;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,13 +11,13 @@ import java.util.List;
  * Created by miinael on 27.03.2017.
  */
 
-public class Board {
+public class Board implements Serializable {
     protected int defaultWidth;
     protected int defaultHeight;
     public Rules rules = new Rules();
-
-    public List<List<Boolean>> dynamicBoardArray = new ArrayList<List<Boolean>>(160);
+    public List<List<Boolean>> dynamicBoardArray;
     public List<List<Boolean>> clone;
+    private boolean isUpdating;
 
     /**
      * Constructs and initiates the board to be used.
@@ -40,30 +41,38 @@ public class Board {
             }
         }
         dynamicBoardArray = array;
+        clone = getBoard(array.size(), array.get(0).size());
 
+    }
+
+    public void defaultStartBoard(){
+        dynamicBoardArray.get(0).set(2,true);
+        dynamicBoardArray.get(1).set(2,true);
+        dynamicBoardArray.get(2).set(2,true);
+        dynamicBoardArray.get(2).set(1,true);
+        dynamicBoardArray.get(1).set(0,true);
     }
 
     /**
      * The method initializing the board with all values set to false.
      */
     public void initStartBoard(){
-        for(int i = 0; i < defaultWidth; i++) {
-            dynamicBoardArray.add(i, new ArrayList<Boolean>(defaultHeight));
-        }
-
-        for(int i = 0; i < defaultWidth; i++){
-            for(int j = 0; j < defaultHeight; j++){
-                dynamicBoardArray.get(i).add(j,false);
-            }
-        }
+        dynamicBoardArray = getBoard(defaultWidth, defaultHeight);
+        clone = getBoard(defaultWidth, defaultHeight);
     }
 
-    public void defaultStartBoard(){
-        setValue(0,2,true);
-        setValue(1,2,true);
-        setValue(2,2,true);
-        setValue(2,1,true);
-        setValue(1,0,true);
+    private List<List<Boolean>> getBoard(int x, int y) {
+        List<List<Boolean>> tmp = new ArrayList<List<Boolean>>(x);
+
+        for(int i = 0; i < x; i++) {
+            tmp.add(new ArrayList<Boolean>(y));
+
+            for(int j = 0; j < y; j++) {
+                tmp.get(i).add(j, false);
+            }
+        }
+
+        return tmp;
     }
 
     public void setValue(int x, int y, boolean value) {
@@ -74,10 +83,6 @@ public class Board {
         return dynamicBoardArray.get(x).get(y);
     }
 
-    public void toggleValue(int x, int y) {
-        dynamicBoardArray.get(x).set(y, !dynamicBoardArray.get(x).get(y));
-    }
-
     public int getWidth() {
         return dynamicBoardArray.size();
     }
@@ -86,26 +91,20 @@ public class Board {
         return dynamicBoardArray.get(0).size();
     }
 
-    public void createClone() {
-        clone = new ArrayList<List<Boolean>>(getWidth());
-
-        for(int i = 0; i < getWidth(); i++) {
-            clone.add(new ArrayList<Boolean>(getHeight()));
-
-            for(int j = 0; j < getHeight(); j++) {
-                clone.get(i).add(j, getValue(i, j));
-            }
-        }
-    }
-
     public void setCloneValue(int x, int y, boolean value) {
         clone.get(x).set(y, value);
     }
 
     public void switchBoard() {
-        for(int i = 0; i < getWidth(); i++) {
-            for(int j = 0; j < getHeight(); j++) {
-                setValue(i, j, clone.get(i).get(j));
+        List<List<Boolean>> tmp = dynamicBoardArray;
+        dynamicBoardArray = clone;
+        clone = tmp;
+    }
+
+    public void clearClone() {
+        for (int i = 0; i < getWidth(); i++) {
+            for (int j = 0; j < getHeight(); j++) {
+                setCloneValue(i,j,false);
             }
         }
     }
@@ -125,7 +124,11 @@ public class Board {
      * The method creating the next generation of cells to be drawn or removed.
      */
     public void nextGeneration() {
-        createClone();
+        if (isUpdating)
+            return;
+
+        isUpdating = true;
+        clearClone();
 
         for(int i = 0; i < getWidth(); i++){
             for(int j = 0; j < getHeight(); j++){
@@ -134,7 +137,9 @@ public class Board {
                 setCloneValue(i, j, value );
             }
         }
+
         switchBoard();
+        isUpdating = false;
     }
 
     /**
