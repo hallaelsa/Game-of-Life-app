@@ -40,7 +40,7 @@ public class GameOfLifeActivity extends AppCompatActivity {
             // hente ut string og lage QR-kode
             Intent intent = getIntent();
             qrCode = new QRCodeWriter();
-           
+
             if(intent.getStringExtra(MainActivity.EXTRA_MESSAGE1) != null) {
                 String msg = intent.getStringExtra(MainActivity.EXTRA_MESSAGE1);
                 try {
@@ -54,24 +54,29 @@ public class GameOfLifeActivity extends AppCompatActivity {
             } else {
                 // hente inn bitmap med bildet
                 Bitmap imageBitmap = intent.getParcelableExtra(MainActivity.EXTRA_MESSAGE2);
-                (new Thread(new ImageConversion(imageBitmap, board))).start();
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                gameView.setBoard(board);
+
+                BoardCallback boardCallback = new BoardCallback(){
+                    public void run(Board board) {
+                        gameView.setBoard(board);
+                        gameView.postInvalidate();
+                    }
+                };
+
+                (new Thread(new ImageConversion(imageBitmap, board, boardCallback))).start();
+//                try {
+//                    Thread.currentThread().join(1000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+                //gameView.setBoard(board);
 
             }
-
-
         }
     }
 
-    private int findClosestColor(double oldPixel) {
-        return (int)Math.round(oldPixel/256);
+    private void dispatchSetBoard(Board board) {
+        gameView.setBoard(board);
     }
-
 
     /**
      * The method starting the animation of the board.
@@ -85,7 +90,12 @@ public class GameOfLifeActivity extends AppCompatActivity {
         timer.scheduleAtFixedRate(new TimerTask(){
             @Override
             public void run(){
+                double start = System.currentTimeMillis();
                 board.nextGeneration();
+                double end = System.currentTimeMillis();
+                double elapsed = end - start;
+                //System.out.println(elapsed);
+
                 gameView.postInvalidate();
             }
         },delay,speed);
@@ -157,3 +167,6 @@ public class GameOfLifeActivity extends AppCompatActivity {
 
 
 }
+
+
+

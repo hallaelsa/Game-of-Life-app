@@ -13,10 +13,12 @@ import android.support.annotation.RequiresApi;
 public class ImageConversion implements Runnable {
     Bitmap newImageBitmap;
     Board board;
+    BoardCallback boardCallback;
 
-    public ImageConversion(Bitmap imageBitmap, Board board) {
+    public ImageConversion(Bitmap imageBitmap, Board board, BoardCallback boardCallback) {
         this.board = board;
-        newImageBitmap = imageBitmap.copy(Bitmap.Config.RGB_565, true);
+        newImageBitmap = Bitmap.createScaledBitmap(imageBitmap, (int)(imageBitmap.getWidth() / 1.2), (int)(imageBitmap.getHeight() / 1.2), true);
+        this.boardCallback = boardCallback;
         System.out.println("bitmap hentet inn");
 
     }
@@ -24,52 +26,48 @@ public class ImageConversion implements Runnable {
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void run() {
-        System.out.println("Bredde: " +newImageBitmap.getWidth());
-        System.out.println("Høyde: " + newImageBitmap.getHeight());
-        System.out.println("vanlig pixel: "+ newImageBitmap.getPixel(3, 3));
-        // http://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
-
-        float[][] array = new float[newImageBitmap.getWidth()][newImageBitmap.getHeight()];
-
-        //sette alle verdier i et vanlig array og gjøre dem om til et tall mellom 0 og 255
-        for (int i = 0; i < newImageBitmap.getWidth(); i++) {
-            for (int j = 0; j < newImageBitmap.getHeight(); j++) {
+        int height = newImageBitmap.getHeight();
+        int width = newImageBitmap.getWidth();
+        float[][] array = new float[width][height];
+        //sette alle verdier inn i et vanlig array og gjøre dem om til et tall mellom 0 og 1
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
                 array[i][j] = luminance(newImageBitmap.getPixel(i, j));
-                //System.out.println("arrayinnhold: " + array[i][j]);
             }
         }
-        System.out.println("Array 0x0: " + array[0][0]);
-        System.out.println("Array 3x3: " + array[3][3]);
 
-        //finne fargene på hver pixel og sette dem til enten 0 eller 1
-        for (int y = 0; y < newImageBitmap.getHeight(); y++)
-            for (int x = 0; x < newImageBitmap.getWidth(); x++) {
+
+        //gjøre fargene til enten 0 eller 1 og forskyve forskjellen til neste pixel
+        for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++) {
                 float pixel = array[x][y];
-                //System.out.println("pixel " + pixel);
                 int newPixel = pixel > 0.50 ? 1 : 0;
                 array[x][y] = newPixel;
-                //System.out.println("ny pixel: " + newPixel);
                 float quant_error = pixel - newPixel;
 
-                if (x < newImageBitmap.getWidth()-1)
+                if (x < width-1)
                     array[x + 1][y] = array[x + 1][y] + quant_error * 7 / 16;
 
-                if (y < newImageBitmap.getHeight()-1 && x > 0)
+                if (y < height-1 && x > 0)
                     array[x - 1][y + 1] = array[x - 1][y + 1] + quant_error * 3 / 16;
 
-                if (y < newImageBitmap.getHeight()-1)
+                if (y < height-1)
                     array[x ][y + 1] = array[x][y + 1] + quant_error * 5 / 16;
 
-                if ((x < newImageBitmap.getWidth()-1) && (y < newImageBitmap.getHeight()-1))
+                if ((x < width-1) && (y < height-1))
                     array[x + 1][y + 1] = array[x + 1][y + 1] + quant_error * 1 / 16;
             }
 
-
         board.setPicture(array);
-
+        boardCallback.run(board);
     }
 
-
+    /**
+     * Finds the brightness of the pixel color. This method is using the formula made by Darel Rex Finley to find a color brightness.
+     * @param pixel the pixel containing the non-premultiplied ARGB color
+     * @return  the luminance in a scale between 0 and 1
+     *@See http://alienryderflex.com/hsp.html
+     */
     public float luminance(int pixel) {
         float red = (float)Color.red(pixel)/255;
         //System.out.println("red: " + red);

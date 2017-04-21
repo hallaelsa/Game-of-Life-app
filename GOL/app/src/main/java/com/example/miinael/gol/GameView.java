@@ -22,7 +22,6 @@ import android.view.View;
 
 public class GameView extends View {
     private Board board;
-    private Paint cellPaint = new Paint();
     private Rect cell;
     private ScaleGestureDetector scaleGestureDetector;
     private float scaleFactor = 1.f;
@@ -31,10 +30,16 @@ public class GameView extends View {
     private float xPosition;
     private float yPosition;
     private int activePointerID = -1;
+    Paint cellPaint = new Paint();
+    Paint clearPaint = new Paint();
+    Paint paint;
+    Paint textPaint = new Paint();
 
     public GameView(Context context, AttributeSet attrs) {
         super(context, attrs);
         scaleGestureDetector = new ScaleGestureDetector(context, new ScaleListener());
+        cellPaint.setColor(Color.parseColor("#6f001c"));
+        clearPaint.setColor(Color.WHITE);
     }
 
     /**
@@ -55,6 +60,13 @@ public class GameView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
+        if (board == null) {
+            textPaint.setTextSize(100);
+            canvas.drawText("Please wait...", 10, 100, textPaint);
+            return;
+        }
+
         canvas.save();
         canvas.scale(scaleFactor, scaleFactor);
         canvas.translate(xPosition/scaleFactor, yPosition/scaleFactor);
@@ -68,15 +80,16 @@ public class GameView extends View {
         int scaleXOffset = (int)((canvas.getWidth() / scaleFactor - canvas.getWidth()) / 2);
         int scaleYOffset = (int)((canvas.getHeight() / scaleFactor - canvas.getHeight()) / 2);
 
-        for (int i = 0; i < board.getWidth(); i++) {
-            for (int j = 0; j < board.getHeight(); j++) {
+        double start = System.currentTimeMillis();
 
-                if (board.getValue(i,j) == true) {
-                    cellPaint.setColor(Color.parseColor("#6f001c"));
-                }
-                else {
-                    cellPaint.setColor(Color.WHITE);
-                }
+        int boardWidth = board.getWidth();
+        int boardHeight = board.getHeight();
+        canvas.drawRect(new Rect(0,0, canvas.getWidth(), canvas.getHeight()), clearPaint);
+
+        for (int i = 0; i < boardWidth; i++) {
+            for (int j = 0; j < boardHeight; j++) {
+                if (!board.getValue(i,j))
+                    continue;
 
                 int cellX = size * i;
                 int cellY = size * j;
@@ -85,6 +98,10 @@ public class GameView extends View {
             }
         }
         canvas.restore();
+
+        double end = System.currentTimeMillis();
+        double elapsed = end - start;
+        //System.out.println(elapsed);
     }
 
     @Override
