@@ -45,6 +45,20 @@ public class Board implements Serializable {
 
     }
 
+    public void setPicture(float[][] pictureArray) {
+        List<List<Boolean>> array = new ArrayList<List<Boolean>>();
+
+        for(int i = 0; i < pictureArray.length; i++) {
+            array.add(new ArrayList<Boolean>());
+            for(int j = 0; j < pictureArray[0].length; j++) {
+                array.get(i).add(j, pictureArray[i][j] == 1 ? true : false);
+            }
+        }
+        dynamicBoardArray = array;
+        clone = getBoard(array.size(), array.get(0).size());
+
+    }
+
     public void defaultStartBoard(){
         dynamicBoardArray.get(0).set(2,true);
         dynamicBoardArray.get(1).set(2,true);

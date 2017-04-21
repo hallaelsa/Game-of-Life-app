@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ public class GameOfLifeActivity extends AppCompatActivity {
             // hente ut string og lage QR-kode
             Intent intent = getIntent();
             qrCode = new QRCodeWriter();
+           
             if(intent.getStringExtra(MainActivity.EXTRA_MESSAGE1) != null) {
                 String msg = intent.getStringExtra(MainActivity.EXTRA_MESSAGE1);
                 try {
@@ -46,21 +48,30 @@ public class GameOfLifeActivity extends AppCompatActivity {
                 } catch (WriterException e) {
                     e.printStackTrace();
                 }
-
+                // legge QR-koden i board og gi dette boardet til GameView
+                board.setQRCode(qr);
+                gameView.setBoard(board);
             } else {
                 // hente inn bitmap med bildet
                 Bitmap imageBitmap = intent.getParcelableExtra(MainActivity.EXTRA_MESSAGE2);
-                System.out.println("bitmap hentet inn");
-
-                // finne fargene på hver pixel
+                (new Thread(new ImageConversion(imageBitmap, board))).start();
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                gameView.setBoard(board);
 
             }
-            // legge QR-koden i board og gi dette boardet til GameView
-            board.setQRCode(qr);
-            gameView.setBoard(board);
+
 
         }
     }
+
+    private int findClosestColor(double oldPixel) {
+        return (int)Math.round(oldPixel/256);
+    }
+
 
     /**
      * The method starting the animation of the board.
